@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @source "../../templates";
-@source "../../public/index.php";
+@source "../../index.php";
 
 :root {
   scrollbar-gutter: stable;

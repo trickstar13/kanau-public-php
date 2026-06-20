@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use App\Cache\FileCache;
 use App\I18n;
@@ -11,12 +11,12 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
 $app = AppFactory::create();
 
-$cache = new FileCache(__DIR__ . '/../var/cache');
+$cache = new FileCache(__DIR__ . '/var/cache');
 $firestore = new FirestoreService(
     $_ENV['FIREBASE_PROJECT_ID'] ?? 'kanau-environment',
     $_ENV['FIREBASE_API_KEY'] ?? '',
@@ -27,7 +27,7 @@ function render(string $template, array $data = []): string
 {
     extract($data);
     ob_start();
-    require __DIR__ . '/../templates/' . $template . '.php';
+    require __DIR__ . '/templates/' . $template . '.php';
     return ob_get_clean();
 }
 

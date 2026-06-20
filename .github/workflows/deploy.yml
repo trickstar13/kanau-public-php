@@ -31,7 +31,7 @@ jobs:
       - name: Deploy via rsync
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avz --delete --exclude='.env' --exclude='var/cache/' --exclude='.git' --exclude='node_modules' --exclude='src/css'
+          switches: -avz --delete --exclude='.env' --exclude='var/cache/' --exclude='.git' --exclude='node_modules' --exclude='src/css' --exclude='docker' --exclude='Dockerfile' --exclude='docker-compose.yml'
           path: ./
           remote_path: ${{ secrets.DEPLOY_PATH }}
           remote_host: ${{ secrets.SSH_HOST }}

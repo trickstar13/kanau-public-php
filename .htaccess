@@ -1,0 +1,8 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Deny access to sensitive directories and files
+RedirectMatch 403 ^/(vendor|src|templates|var|docker|node_modules|\.git)/
+RedirectMatch 403 ^/(composer\.(json|lock)|package(-lock)?\.json|Dockerfile|docker-compose\.yml|\.env|\.gitignore)$

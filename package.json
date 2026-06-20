@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "build:css": "npx @tailwindcss/cli -i src/css/app.css -o public/css/app.css --minify",
-    "watch:css": "npx @tailwindcss/cli -i src/css/app.css -o public/css/app.css --watch"
+    "build:css": "npx @tailwindcss/cli -i src/css/app.css -o css/app.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i src/css/app.css -o css/app.css --watch"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.1.0"
