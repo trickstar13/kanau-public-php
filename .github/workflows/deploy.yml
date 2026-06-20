@@ -28,6 +28,17 @@ jobs:
           npm install
           npm run build:css
 
+      - name: Allow SSH from this runner
+        run: |
+          RUNNER_IP=$(curl -s https://ifconfig.me)
+          echo "Runner IP: $RUNNER_IP"
+          curl -sk "https://api.${{ secrets.SSH_HOST }}/v1/tool/ssh_ip_allow" \
+            -d "account=${{ secrets.SSH_USER }}" \
+            -d "server_name=${{ secrets.SSH_HOST }}" \
+            -d "api_key=${{ secrets.CORESERVER_API_KEY }}" \
+            -d "param[addr]=$RUNNER_IP"
+          sleep 30
+
       - name: Deploy via rsync
         uses: burnett01/rsync-deployments@7.0.1
         with:
