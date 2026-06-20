@@ -28,7 +28,13 @@ jobs:
           npm install
           npm run build:css
 
-      - name: Allow SSH from this runner
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Allow SSH and wait for propagation
         run: |
           RUNNER_IP=$(curl -s https://ifconfig.me)
           echo "Runner IP: $RUNNER_IP"
@@ -38,15 +44,20 @@ jobs:
             -d "api_secret_key=${{ secrets.CORESERVER_API_KEY }}" \
             -d "param[addr]=$RUNNER_IP"
           echo ""
-          echo "Waiting for SSH allowlist propagation..."
-          sleep 60
+          echo "Waiting for SSH access..."
+          for i in $(seq 1 20); do
+            if ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=5 -o IdentitiesOnly=yes -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ok" 2>/dev/null; then
+              echo "SSH connection established after attempt $i"
+              exit 0
+            fi
+            echo "Attempt $i/20 failed, retrying in 15s..."
+            sleep 15
+          done
+          echo "SSH connection failed after 20 attempts"
+          exit 1
 
       - name: Deploy via rsync
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
           rsync -avz --delete \
             --exclude='.env' \
             --exclude='var/cache/' \
@@ -56,5 +67,5 @@ jobs:
             --exclude='docker' \
             --exclude='Dockerfile' \
             --exclude='docker-compose.yml' \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }}" \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o IdentitiesOnly=yes -p ${{ secrets.SSH_PORT }}" \
             ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}
